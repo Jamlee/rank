@@ -65,16 +65,21 @@ func main() {
 	})
 	c.OnRequest(func(r *colly.Request) {})
 
-	urlTmpl := "https://github.com/search?l=%s&q=stars%%3A%%3E%d&type=Repositories&p=%d"
+	urlTmpl := "https://github.com/search?l=%s&q=stars%%3A%%3E%d+%c&type=Repositories&p=%d&s=stars"
 	langs := []Lang{
 		{"C%2B%2B", 100, 100},
 		{"C", 100, 100},
 		{"Rust", 100, 100},
 	}
+	searchContent := "abcdefghijklmnopqrstuvwxyz"
 	for _, lang := range langs {
-		for i := uint(1); i <= lang.Page; i++ {
-			url := fmt.Sprintf(urlTmpl, lang.Name, lang.Stars, i)
-			c.Visit(url)
+		for i := 0; i < len(searchContent); i++ {
+			ch := searchContent[i]
+			for i := uint(1); i <= lang.Page; i++ {
+				url := fmt.Sprintf(urlTmpl, lang.Name, lang.Stars, ch, i)
+				fmt.Println(url)
+				c.Visit(url)
+			}
 		}
 	}
 }

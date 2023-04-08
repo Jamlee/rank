@@ -14,6 +14,13 @@ export default function Home({ langs, rawRecords }: any) {
       dataIndex: 'name',
       key: 'name',
       width: 100,
+      render: (_: any, { name }: any) => (
+        <>
+          <div>
+            <a href={'https://github.com/' + name} target="_blank">{name}</a>
+          </div>
+        </>
+      ),
     },
     {
       title: 'Stars',
@@ -42,7 +49,11 @@ export default function Home({ langs, rawRecords }: any) {
           <div style={{maxWidth: '400px'}}>
             {topics?.map((topic: any) => {
               return (
-                <Tag color={'geekblue'} key={topic}>
+                <Tag color={'geekblue'} key={topic} style={{ cursor: "pointer" }} onClick={
+                  () => {
+                    open('https://github.com/topics/' + topic, '_blank')
+                  }
+                }>
                   {topic}
                 </Tag>
               );
