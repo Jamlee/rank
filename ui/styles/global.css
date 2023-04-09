@@ -201,3 +201,29 @@ body {
 .github-rank .ant-tag-geekblue {
   margin-top: 4px;
 }
+
+/* 定义滚动条的背景颜色 */
+.github-rank ::-webkit-scrollbar-track {
+  background-color: #f5f5f5;
+}
+
+/* 定义滑块的颜色 */
+.github-rank ::-webkit-scrollbar-thumb {
+  background-color: #000000;
+}
+
+/* 定义当鼠标悬停在滑块上时的颜色 */
+.github-rank ::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+.github-rank ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 悬停时显示滚动条 */
+.topics-hover:hover::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}

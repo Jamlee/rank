@@ -21,6 +21,7 @@ mkdir data
 docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret -v `pwd`/data:/data/db -p 27017:27017 mongo
 ```
 
+
 ## 贡献
 
 如果您对无邪有任何建议、反馈或贡献，欢迎提交 issue 或 pull request。我们非常感谢您的支持和参与。
