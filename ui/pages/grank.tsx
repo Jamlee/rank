@@ -9,7 +9,7 @@ export default function Home({ langs, rawRecords }: any) {
   const [form] = Form.useForm()
   const [records, setRecords] = useState(rawRecords)
 
-  const tableRef = useRef(null);
+  const tableRef = useRef<any>(null);
   const onShiftLeft = () => {
     const left = tableRef?.current?.getElementsByClassName("anticon-left");
     left[0].click();
@@ -160,7 +160,7 @@ export default function Home({ langs, rawRecords }: any) {
   )
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   try {
     const client = await clientPromise
     const db = client.db("github")

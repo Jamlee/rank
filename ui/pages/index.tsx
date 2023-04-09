@@ -1,6 +1,6 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import instance from '../lib/axios'
+import fs from 'fs'
 
 export default function Index({content}: any) {
     return <div style={{marginTop: '20px'}}>
@@ -8,12 +8,12 @@ export default function Index({content}: any) {
     </div>
 }
 
-export async function getServerSideProps() {
-    const res: any = await instance.get('/home')
-    console.log(res)
+export async function getStaticProps() {
+    const content = fs.readFileSync('README-UI.md')
+
     return {
         props: { 
-          content: res?.data.content,
+          content: content.toString(),
         },
     }
 }
