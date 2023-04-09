@@ -1,4 +1,6 @@
 import { Layout, Menu, theme } from 'antd'
+import Head from "next/head";
+
 const { Header, Content, Footer } = Layout
 import {useRouter} from 'next/router';
 
@@ -7,6 +9,10 @@ export default function MainLayout({ children }: any) {
 
     return (
         <Layout className="layout main" >
+          <Head>
+            <meta name="description" content="这是一个生成GitHub项目排行榜的工具，可以方便地查看最受欢迎、最火热的开源项目。" />
+            <meta name="keywords" content="GitHub,项目,排行榜,C,C++,Rust" />
+          </Head>
           <Header style={{paddingInline: "0px"}}>
             <Menu
                 theme="light"
