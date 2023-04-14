@@ -15,17 +15,17 @@ export default function MainLayout({ children }: any) {
           </Head>
           <Header style={{paddingInline: "0px"}}>
             <Menu
-                theme="light"
-                mode="horizontal"
-                selectedKeys={[router.asPath]}
-                items={[
-                  {key: "/", label: "Home"},
-                  {key: "/grank", label: "GithubRank"}
-                ]}
-                onSelect={ (item) => {
-                  router.push(item.key)
-                } }
-              />
+              theme="light"
+              mode="horizontal"
+              selectedKeys={[router.asPath]}
+              items={[
+                {key: "/", label: "Home"},
+                {key: "/grank", label: "GithubRank"}
+              ]}
+              onSelect={ (item) => {
+                router.push(item.key)
+              } }
+            />
           </Header>
           <Content style={{ padding: '0 20px', backgroundColor:'#fff' }}>
             {children}

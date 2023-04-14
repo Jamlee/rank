@@ -10,11 +10,13 @@ export default function Home({ langs, rawRecords }: any) {
   const [records, setRecords] = useState(rawRecords)
 
   const tableRef = useRef<any>(null);
-  const onShiftLeft = () => {
+  const searchRef = useRef<any>(null);
+
+  const onAltJ = () => {
     const left = tableRef?.current?.getElementsByClassName("anticon-left");
     left[0].click();
   }
-  const onShiftRight = () => {
+  const onAltK = () => {
     const right = tableRef?.current?.getElementsByClassName("anticon-right");
     right[0].click();
   }
@@ -45,7 +47,7 @@ export default function Home({ langs, rawRecords }: any) {
       key: 'desc',
       render: (_: any, { desc }: any) => (
         <>
-          <div style={{maxWidth: '500px'}}>
+          <div style={{ maxWidth: '500px' }}>
             {desc}
           </div>
         </>
@@ -57,7 +59,7 @@ export default function Home({ langs, rawRecords }: any) {
       key: 'topics',
       render: (_: any, { topics }: any) => (
         <>
-          <div className='topics-hover' style={{maxWidth: '400px', whiteSpace: 'nowrap', overflow: 'scroll', paddingBottom: '5px'}}>
+          <div className='topics-hover' style={{ maxWidth: '400px', whiteSpace: 'nowrap', overflow: 'scroll', paddingBottom: '5px' }}>
             {topics?.map((topic: any) => {
               return (
                 <Tag color={'geekblue'} key={topic} style={{ cursor: "pointer" }} onClick={
@@ -80,7 +82,7 @@ export default function Home({ langs, rawRecords }: any) {
       key: 'lang',
       render: (_: any, { lang }: any) => (
         <>
-          <div style={{maxWidth: '60px'}}>
+          <div style={{ maxWidth: '60px' }}>
             {lang}
           </div>
         </>
@@ -88,75 +90,76 @@ export default function Home({ langs, rawRecords }: any) {
     },
   ];
 
+
   return (
-      <>
-        <div style={{ marginTop: '20px'}}>
-         快捷键: 下一页 Shift + Right, 上一页 Shift + Left
+    <>
+      <div style={{ marginTop: '20px' }} id="dummy">
+        快捷键: 下一页 Ctrl + Alt + End, 上一页  Ctrl + Alt + Home
+      </div>
+      <div style={{ marginTop: '20px', position: 'relative' }}>
+        <div>
+          <Form form={form} name="query" layout="inline">
+            <Form.Item
+              name="lang"
+              style={{ width: '100px' }}
+            >
+              <Select
+                options={langs}
+              />
+            </Form.Item>
+            <Form.Item
+              name="name"
+            >
+              <Input placeholder="项目" ref={searchRef} />
+            </Form.Item>
+            <Form.Item shouldUpdate>
+              {() => (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    const data = form.getFieldsValue()
+                    console.log(data);
+                    const newData = rawRecords.filter((ele: any) => {
+                      let result = true;
+                      if (data.lang !== undefined) {
+                        if (ele.lang !== data.lang) {
+                          result = false
+                        }
+                      }
+                      if (data.name !== undefined) {
+                        if (ele.name.indexOf(data.name) < 0) {
+                          result = false
+                        }
+                      }
+                      return result
+                    })
+                    setRecords(newData)
+                  }}
+                  disabled={
+                    !!form.getFieldsError().filter(({ errors }) => errors.length).length
+                  }
+                >
+                  查询
+                </Button>
+              )}
+            </Form.Item>
+          </Form>
         </div>
-        <div style={{ marginTop: '20px', position: 'relative' }}>
-          <div>
-            <Form form={form} name="query" layout="inline">
-              <Form.Item
-                name="lang"
-                style={{ width: '100px'}}
-              >
-                <Select
-                  options={langs}
-                />
-              </Form.Item>
-              <Form.Item
-                name="name"
-              >
-                <Input placeholder="项目" />
-              </Form.Item>
-              <Form.Item shouldUpdate>
-                {() => (
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      const data = form.getFieldsValue()
-                      console.log(data);
-                      const newData = rawRecords.filter((ele: any) => {
-                        let result = true;
-                        if (data.lang !== undefined) {
-                          if (ele.lang !== data.lang) {
-                            result = false
-                          }
-                        }
-                        if (data.name !== undefined) {
-                          if (ele.name.indexOf(data.name) < 0) {
-                            result = false
-                          }
-                        }
-                        return result
-                      })
-                      setRecords(newData)
-                    }}
-                    disabled={
-                      !!form.getFieldsError().filter(({ errors }) => errors.length).length
-                    }
-                  >
-                    查询
-                  </Button>
-                )}
-              </Form.Item>
-            </Form>
-          </div>
-          <div style={{ position: 'absolute', top: '55px' }}>
-            查询结果 {records.length} 条 
-          </div>
-          <Keyevent
-            events={{
-              onShiftLeft,
-              onShiftRight,
-            }}
-          >
+        <div style={{ position: 'absolute', top: '55px' }}>
+          查询结果 {records.length} 条
+        </div>
+        <Keyevent
+          events={{
+            onAltJ,
+            onAltK,
+          }}
+        >
           <Table className='github-rank' ref={tableRef}
-            pagination={{ position: ['topRight'] }} 
+            pagination={{ position: ['topRight'] }}
             dataSource={records} columns={columns} />
-          </Keyevent>
-        </div>
-      </>
+        </Keyevent>
+      </div>
+    </>
   )
 }
 
@@ -165,9 +168,9 @@ export async function getStaticProps() {
     const client = await clientPromise
     const db = client.db("github")
     const langs: any[] = []
-    await db.listCollections({}, {nameOnly: true })
-      .forEach(name => langs.push({value: name.name, label: name.name}) > 0)
-    const colls = langs.map(ele =>  db.collection(ele.value))
+    await db.listCollections({}, { nameOnly: true })
+      .forEach(name => langs.push({ value: name.name, label: name.name }) > 0)
+    const colls = langs.map(ele => db.collection(ele.value))
     const results = await Promise.all(colls.map(ele => ele.find({})))
     const records: any[] = []
     await Promise.all(results.map((cursor) => {
@@ -178,7 +181,7 @@ export async function getStaticProps() {
       return ele
     })
     return {
-      props: { 
+      props: {
         isConnected: true,
         langs,
         rawRecords,
