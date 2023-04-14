@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
-	"log"
+	"github/jamlee/ranks/pkg/log"
 
 	"github.com/gocolly/colly"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,20 +24,25 @@ type Lang struct {
 
 type Result struct {
 	Name   string   `bson:"name"`
-	Stars  string   `bson:"stars"`
+	Stars  float64  `bson:"stars"`
 	Topics []string `bson:"topics"`
 	Desc   string   `bson:"desc"`
 	Lang   string   `bson:"lang"`
 }
 
 func main() {
+	uri := os.Getenv("MONGO_URI")
+	if uri == "" {
+		log.Panic("have not default env, %s", "export MONGO_URI=mongodb://user:passwd@127.0.0.1:27017")
+	}
+
 	// 连接数据库
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx,
-		options.Client().ApplyURI("mongodb://mongoadmin:secret@127.0.0.1:27017"))
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI))
 	if err != nil {
-		panic(err)
+		log.Panic("err: %v", err)
 	}
 
 	// 数据爬取
@@ -49,18 +56,33 @@ func main() {
 	c.OnHTML("li.repo-list-item", func(e *colly.HTMLElement) {
 		result := &Result{}
 		result.Name = e.ChildText("div.f4>a")
-		result.Stars = e.ChildText(".mr-3 a")
+		stars := e.ChildText(".mr-3 a")
 		result.Lang = e.ChildText("span[itemprop='programmingLanguage']")
 		result.Desc = e.ChildText("p.mb-1")
 		e.ForEach(".topic-tag", func(i int, topic *colly.HTMLElement) {
 			result.Topics = append(result.Topics, strings.TrimSpace(topic.Text))
 		})
+		var starFloat float64
+		var err error
+		if strings.HasSuffix(stars, "k") {
+			stars = stars[0 : len(stars)-1]
+			starFloat, err = strconv.ParseFloat(stars, 64)
+			starFloat = starFloat * 1000
+		} else {
+			starFloat, err = strconv.ParseFloat(stars, 64)
+		}
+		if err != nil {
+			starFloat = -1
+		}
+
+		result.Stars = starFloat
 		collection := client.Database("github").Collection(result.Lang)
 		opts := options.Replace().SetUpsert(true)
-		_, err := collection.ReplaceOne(context.TODO(),
+
+		_, err = collection.ReplaceOne(context.TODO(),
 			bson.D{{Key: "name", Value: result.Name}}, result, opts)
 		if err != nil {
-			log.Printf("err: %v\n", err)
+			log.Error("err: %v\n", err)
 		}
 	})
 	c.OnRequest(func(r *colly.Request) {})
@@ -77,7 +99,7 @@ func main() {
 			ch := searchContent[i]
 			for i := uint(1); i <= lang.Page; i++ {
 				url := fmt.Sprintf(urlTmpl, lang.Name, lang.Stars, ch, i)
-				fmt.Println(url)
+				log.Info("visit %s", url)
 				c.Visit(url)
 			}
 		}
