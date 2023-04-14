@@ -3,7 +3,7 @@ import { MongoClient } from 'mongodb'
 // 默认连接数据库
 let MONGODB_URI = process.env.MONGODB_URI
 if (!MONGODB_URI) {
-    MONGODB_URI='mongodb://mongoadmin:secret@127.0.0.1:27017'
+    throw new Error('env MONGODB_URI not found')
 }
 
 const uri = MONGODB_URI
