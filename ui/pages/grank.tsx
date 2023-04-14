@@ -94,7 +94,7 @@ export default function Home({ langs, rawRecords }: any) {
   return (
     <>
       <div style={{ marginTop: '20px' }} id="dummy">
-        快捷键: 下一页 Ctrl + Alt + End, 上一页  Ctrl + Alt + Home
+        快捷键:  上一页  Alt + K, 下一页Alt + K
       </div>
       <div style={{ marginTop: '20px', position: 'relative' }}>
         <div>
