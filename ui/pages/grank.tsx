@@ -94,7 +94,7 @@ export default function Home({ langs, rawRecords }: any) {
   return (
     <>
       <div style={{ marginTop: '20px' }} id="dummy">
-        快捷键:  上一页  Alt + K, 下一页Alt + K
+        快捷键:  上一页  Alt + J, 下一页Alt + K
       </div>
       <div style={{ marginTop: '20px', position: 'relative' }}>
         <div>
@@ -171,7 +171,7 @@ export async function getStaticProps() {
     await db.listCollections({}, { nameOnly: true })
       .forEach(name => langs.push({ value: name.name, label: name.name }) > 0)
     const colls = langs.map(ele => db.collection(ele.value))
-    const results = await Promise.all(colls.map(ele => ele.find({})))
+    const results = await Promise.all(colls.map(ele => ele.find({}).sort({stars: -1})))
     const records: any[] = []
     await Promise.all(results.map((cursor) => {
       return cursor.forEach((record) => records.push(record) > 0)

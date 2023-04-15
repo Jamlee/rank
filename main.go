@@ -31,7 +31,7 @@ type Result struct {
 }
 
 func main() {
-	uri := os.Getenv("MONGO_URI")
+	uri := os.Getenv("MONGODB_URI")
 	if uri == "" {
 		log.Panic("have not default env, %s", "export MONGO_URI=mongodb://user:passwd@127.0.0.1:27017")
 	}
